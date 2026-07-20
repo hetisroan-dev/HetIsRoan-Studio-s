@@ -9,140 +9,174 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
-<body class="dark-mode">
+<body>
+
     <nav class="navbar">
         <div class="nav-container">
-            <a href="index.html" class="logo-container">
-                <img src="logo.png" alt="HetIsRoan Logo" class="logo-img">
-                <span class="logo-text">HetIsRoan Studio's</span>
-            </a>
-            <div class="menu-toggle" id="mobile-menu">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-            </div>
+            <a href="index.html" class="logo">HetIsRoan <span>Studio's</span></a>
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
-                <li><a href="over.html">Over Ons</a></li>
                 <li><a href="portfolio.html">Portfolio</a></li>
-                <li><a href="contact.html">Aanvragen</a></li>
-                <li class="join-team-nav" style="display: none;"><a href="solliciteren.html">Join Het Team</a></li>
-                <li class="admin-link-item"><a href="admin.html" class="active">Admin</a></li>
-                <li><button id="theme-toggle" class="btn-theme">☀️ Light</button></li>
+                <li><a href="over.html">Over Ons</a></li>
+                <li><a href="contact.html">Contact / Aanvragen</a></li>
+                <li><a href="solliciteren.html">Join Us</a></li>
+                <li><a href="admin.html" class="active">Admin</a></li>
             </ul>
         </div>
     </nav>
 
-    <!-- Login Overlay -->
-    <div id="admin-login-overlay"
-        style="display: flex; justify-content: center; align-items: center; min-height: 70vh;">
-        <div class="card" style="max-width: 400px; width: 100%; text-align: center;">
-            <h2>🔒 Admin Inloggen</h2>
-            <p style="color: var(--text-secondary); margin-bottom: 20px;">Voer het beheerderswachtwoord in.</p>
-            <form id="admin-login-form">
-                <div class="form-group">
-                    <input type="password" id="admin-pass-input" placeholder="Wachtwoord" required
-                        style="text-align: center;">
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Inloggen</button>
-            </form>
-        </div>
-    </div>
+    <div class="container page-content">
+        <h1 style="margin-bottom: 10px;">Admin Dashboard</h1>
+        <p style="color: var(--text-muted); margin-bottom: 30px;">Beheer hier binnengekomen formulieren en de inhoud van
+            je portfolio.</p>
 
-    <!-- Protected Dashboard Content -->
-    <main id="admin-protected-content" class="container page-content" style="display: none;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-            <h2>⚙️ Beheerders Dashboard</h2>
-            <button onclick="logoutAdmin()" class="btn btn-secondary" style="padding: 8px 16px;">Uitloggen</button>
-        </div>
-
-        <!-- Instellingen Box -->
-        <section class="card" style="margin-bottom: 30px;">
-            <h3>🌐 Website Zichtbaarheid Instellingen</h3>
-            <p style="color: var(--text-secondary); margin-bottom: 15px;">Wissel hier de weergave van menuknoppen op de
-                live website.</p>
-
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                    <input type="checkbox" id="toggle-admin-nav">
-                    <span>Toon <strong>Admin Menu-knop</strong> in de navigatiebalk voor alle bezoekers</span>
-                </label>
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                    <input type="checkbox" id="toggle-join-team">
-                    <span>Toon <strong>Join Het Team</strong> pagina in het menu</span>
-                </label>
+        <!-- PORTFOLIO BEHEREN -->
+        <div class="card">
+            <h2>Portfolio Beheren</h2>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">
+                Verwijder hier items die per ongeluk zijn geplaatst of niet meer op de site mogen staan.
+            </p>
+            <div id="portfolio-list" style="display: flex; flex-direction: column; gap: 10px;">
+                <p style="color: var(--text-muted);">Portfolio items laden...</p>
             </div>
-
-            <button id="btn-save-toggles" class="btn btn-primary" style="margin-top: 20px;">Instellingen Opslaan op Alle
-                Apparaten</button>
-        </section>
-
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-            <!-- Aanvragen Box -->
-            <section class="card">
-                <h3>📩 Aanvragen (<span id="count-requests">0</span>)</h3>
-                <div id="requests-list" style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
-                    <!-- Dynamisch geladen -->
-                </div>
-            </section>
-
-            <!-- Sollicitaties Box -->
-            <section class="card">
-                <h3>👨‍💻 Sollicitaties (<span id="count-applications">0</span>)</h3>
-                <div id="applications-list" style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
-                    <!-- Dynamisch geladen -->
-                </div>
-            </section>
         </div>
-    </main>
 
-    <!-- Detail Modal -->
-    <div id="detail-modal"
-        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; padding: 20px;">
-        <div class="card"
-            style="max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative;">
-            <button onclick="closeModal()"
-                style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: var(--text-color); font-size: 1.5rem; cursor: pointer;">&times;</button>
-            <h3 id="modal-title" style="margin-bottom: 15px;">Details</h3>
-            <div id="modal-content"></div>
-
-            <!-- Portfolio Goedkeuring Box -->
-            <div id="modal-portfolio-box"
-                style="display: none; margin-top: 20px; padding: 15px; border: 1px dashed var(--accent-color); border-radius: 8px;">
-                <h4 style="margin-bottom: 10px; color: var(--accent-color);">🎉 Plaatsen op Portfolio Pagina</h4>
-                <div class="form-group" style="margin-bottom: 10px;">
-                    <label>Project Titel</label>
-                    <input type="text" id="port-title">
-                </div>
-                <div class="form-group" style="margin-bottom: 10px;">
-                    <label>Live URL / Link</label>
-                    <input type="text" id="port-url" placeholder="https://...">
-                </div>
-                <div class="form-group" style="margin-bottom: 10px;">
-                    <label>Beschrijving</label>
-                    <textarea id="port-desc" rows="2"></textarea>
-                </div>
-                <div class="form-group" style="margin-bottom: 10px;">
-                    <label>Tags (gescheiden met komma)</label>
-                    <input type="text" id="port-tags" value="HTML5, CSS3, JavaScript">
-                </div>
-                <button id="btn-submit-to-portfolio" class="btn btn-primary" style="width: 100%;">Publiceer op
-                    Portfolio</button>
+        <!-- BINNENGEKOMEN AANVRAGEN -->
+        <div class="card">
+            <h2>Binnengekomen Aanvragen</h2>
+            <div id="requests-list" style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                <p style="color: var(--text-muted);">Aanvragen laden...</p>
             </div>
+        </div>
 
-            <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
-                <button id="modal-delete-btn" class="btn btn-secondary"
-                    style="background: #e74c3c; color: white;">Verwijderen</button>
-                <button onclick="closeModal()" class="btn btn-secondary">Sluiten</button>
+        <!-- BINNENGEKOMEN SOLLICITATIES -->
+        <div class="card">
+            <h2>Binnengekomen Sollicitaties</h2>
+            <div id="applications-list" style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                <p style="color: var(--text-muted);">Sollicitaties laden...</p>
             </div>
         </div>
     </div>
 
     <footer>
-        <p>&copy; HetIsRoan Studio's. Alle rechten voorbehouden.</p>
+        <p>&copy; HetIsRoan Studio's - Alle rechten voorbehouden.</p>
     </footer>
 
-    <script src="script.js"></script>
+    <script>
+        // Vul hier je eigen Supabase-gegevens in
+        const SUPABASE_URL = 'https://JOUW-PROJECT-ID.supabase.co';
+        const SUPABASE_ANON_KEY = 'JOUW-ANON-KEY';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // 1. Portfolio Ophalen & Verwijderen
+        async function loadPortfolio() {
+            const list = document.getElementById('portfolio-list');
+            const { data, error } = await supabase
+                .from('portfolio')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                list.innerHTML = `<p style="color: var(--danger);">Fout bij laden portfolio: ${error.message}</p>`;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                list.innerHTML = '<p style="color: var(--text-muted);">Geen portfolio-items gevonden.</p>';
+                return;
+            }
+
+            list.innerHTML = '';
+            data.forEach(item => {
+                const div = document.createElement('div');
+                div.style.cssText = 'background: var(--bg-dark); padding: 12px 15px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color);';
+                div.innerHTML = `
+                    <div>
+                        <strong>${item.titel || 'Geen titel'}</strong>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">${item.beschrijving || ''}</p>
+                    </div>
+                    <button onclick="deletePortfolio(${item.id})" class="btn btn-danger" style="padding: 6px 12px; font-size: 0.85rem;">Verwijderen</button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        async function deletePortfolio(id) {
+            if (confirm('Weet je zeker dat je dit item wilt verwijderen uit het portfolio?')) {
+                const { error } = await supabase.from('portfolio').delete().eq('id', id);
+                if (error) {
+                    alert('Fout bij verwijderen: ' + error.message);
+                } else {
+                    loadPortfolio();
+                }
+            }
+        }
+
+        // 2. Aanvragen Laden
+        async function loadRequests() {
+            const list = document.getElementById('requests-list');
+            const { data, error } = await supabase
+                .from('aanvragen')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                list.innerHTML = `<p style="color: var(--danger);">Fout bij laden aanvragen: ${error.message}</p>`;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                list.innerHTML = '<p style="color: var(--text-muted);">Geen aanvragen gevonden.</p>';
+                return;
+            }
+
+            list.innerHTML = '';
+            data.forEach(item => {
+                const div = document.createElement('div');
+                div.style.cssText = 'background: var(--bg-dark); padding: 12px 15px; border-radius: 6px; border: 1px solid var(--border-color);';
+                div.innerHTML = `
+                    <strong>${item.naam || 'Anoniem'}</strong> <span style="color: var(--text-muted);">(${item.email || ''})</span> - <em>${item.soort_website || ''}</em>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 5px;">${item.wensen || item.bericht || ''}</p>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        // 3. Sollicitaties Laden
+        async function loadApplications() {
+            const list = document.getElementById('applications-list');
+            const { data, error } = await supabase
+                .from('sollicitaties')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                list.innerHTML = `<p style="color: var(--danger);">Fout bij laden sollicitaties: ${error.message}</p>`;
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                list.innerHTML = '<p style="color: var(--text-muted);">Geen sollicitaties gevonden.</p>';
+                return;
+            }
+
+            list.innerHTML = '';
+            data.forEach(item => {
+                const div = document.createElement('div');
+                div.style.cssText = 'background: var(--bg-dark); padding: 12px 15px; border-radius: 6px; border: 1px solid var(--border-color);';
+                div.innerHTML = `
+                    <strong>${item.naam || 'Anoniem'}</strong> <span style="color: var(--text-muted);">(${item.email || ''})</span>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 5px;">${item.motivatie || item.ervaring || ''}</p>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        // Aanroepen bij openen van pagina
+        loadPortfolio();
+        loadRequests();
+        loadApplications();
+    </script>
 </body>
 
 </html>
