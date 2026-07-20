@@ -1,0 +1,10 @@
+# Besturingssysteem tijdelijke bestanden
+.DS_Store
+Thumbs.db
+
+# Editor / IDE instellingen
+.vscode/
+.idea/
+
+# Logbestanden
+*.log

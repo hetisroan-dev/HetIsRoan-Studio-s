@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio - HetIsRoan Studio's</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body class="dark-mode">
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo-container">
+                <img src="logo.png" alt="HetIsRoan Logo" class="logo-img">
+                <span class="logo-text">HetIsRoan Studio's</span>
+            </a>
+            <div class="menu-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="over.html">Over Ons</a></li>
+                <li><a href="portfolio.html" class="active">Portfolio</a></li>
+                <li><a href="contact.html">Aanvragen</a></li>
+                <li class="join-team-nav" style="display: none;"><a href="solliciteren.html">Join Het Team</a></li>
+                <li class="admin-link-item" style="display: none;"><a href="admin.html">Admin</a></li>
+                <li><button id="theme-toggle" class="btn-theme">☀️ Light</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container page-content">
+        <div class="section-title">
+            <h2>Ons Portfolio</h2>
+            <p>Bekijk hier recente projecten die door HetIsRoan Studio's zijn gerealiseerd.</p>
+        </div>
+
+        <div id="portfolio-container" class="portfolio-grid" style="display: flex; flex-direction: column; gap: 30px;">
+            <!-- Wordt dynamisch geladen via script.js -->
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; HetIsRoan Studio's. Alle rechten voorbehouden.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

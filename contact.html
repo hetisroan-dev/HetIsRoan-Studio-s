@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Aanvragen - HetIsRoan Studio's</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body class="dark-mode">
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo-container">
+                <img src="logo.png" alt="HetIsRoan Logo" class="logo-img">
+                <span class="logo-text">HetIsRoan Studio's</span>
+            </a>
+            <div class="menu-toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="over.html">Over Ons</a></li>
+                <li><a href="portfolio.html">Portfolio</a></li>
+                <li><a href="contact.html" class="active">Aanvragen</a></li>
+                <li class="join-team-nav" style="display: none;"><a href="solliciteren.html">Join Het Team</a></li>
+                <li class="admin-link-item" style="display: none;"><a href="admin.html">Admin</a></li>
+                <li><button id="theme-toggle" class="btn-theme">☀️ Light</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container page-content">
+        <div class="card form-card">
+            <h2>Vraag jouw Website aan</h2>
+            <p style="margin-bottom: 25px; color: var(--text-secondary);">Vul het onderstaande formulier in en we nemen
+                zo snel mogelijk contact met je op.</p>
+
+            <form id="request-form">
+                <div class="form-group">
+                    <label for="req-name">Naam / Studio Naam *</label>
+                    <input type="text" id="req-name" required placeholder="bijv. Roan">
+                </div>
+
+                <div class="form-group">
+                    <label for="req-email">E-mailadres *</label>
+                    <input type="email" id="req-email" required placeholder="jouwnaam@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="req-type">Soort Website *</label>
+                    <select id="req-type" required>
+                        <option value="Portfolio Website">Portfolio Website</option>
+                        <option value="Studio Platform">Studio Platform</option>
+                        <option value="Community / Roleplay Website">Community / Roleplay Website</option>
+                        <option value="Informatieve Website">Informatieve Website</option>
+                        <option value="Anders / Custom">Anders / Custom</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="req-details">Omschrijf je Wensen & Inhoud *</label>
+                    <textarea id="req-details" rows="5" required
+                        placeholder="Vertel kort wat voor pagina's, functies of stijl je in gedachten hebt..."></textarea>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="req-portfolio-permission" checked>
+                    <label for="req-portfolio-permission">Ik geef toestemming om de voltooide website te tonen in het
+                        HetIsRoan Portfolio.</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 15px;">Aanvraag
+                    Versturen</button>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; HetIsRoan Studio's. Alle rechten voorbehouden.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
