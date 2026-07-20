@@ -97,7 +97,7 @@ body {
     margin-bottom: 25px;
 }
 
-/* FORMULIEREN (Aanvraag, Sollicitatie & Admin) */
+/* FORMULIEREN (Aanvragen, Sollicitaties & Login) */
 .form-group {
     display: flex;
     flex-direction: column;
@@ -114,6 +114,7 @@ label {
 input[type="text"],
 input[type="email"],
 input[type="url"],
+input[type="password"],
 select,
 textarea {
     width: 100%;
@@ -133,7 +134,7 @@ textarea:focus {
     border-color: var(--primary);
 }
 
-/* CHECKBOXES (Voor vaardigheden & opties) */
+/* CHECKBOXES (Voor vaardigheden) */
 .checkbox-group {
     display: flex;
     flex-direction: column;

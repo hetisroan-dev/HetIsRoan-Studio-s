@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - HetIsRoan Studio's</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
@@ -25,35 +26,70 @@
         </div>
     </nav>
 
-    <div class="container page-content">
-        <h1 style="margin-bottom: 10px;">Admin Dashboard</h1>
-        <p style="color: var(--text-muted); margin-bottom: 30px;">Beheer hier binnengekomen formulieren en de inhoud van
-            je portfolio.</p>
+    <!-- 1. LOGIN SCHERM (Standaard zichtbaar) -->
+    <div id="login-screen" class="container page-content">
+        <div class="card" style="max-width: 400px; margin: 40px auto; text-align: center;">
+            <h2>Admin Login</h2>
+            <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 0.9rem;">Voer het wachtwoord in om
+                toegang te krijgen.</p>
+            <form id="login-form">
+                <div class="form-group">
+                    <input type="password" id="admin-password" placeholder="Wachtwoord" required
+                        style="text-align: center;">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">Inloggen</button>
+            </form>
+            <p id="login-error" style="color: var(--danger); margin-top: 15px; display: none;">Onjuist wachtwoord!</p>
+        </div>
+    </div>
 
-        <!-- PORTFOLIO BEHEREN -->
-        <div class="card">
-            <h2>Portfolio Beheren</h2>
-            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">
-                Verwijder hier items die per ongeluk zijn geplaatst of niet meer op de site mogen staan.
-            </p>
-            <div id="portfolio-list" style="display: flex; flex-direction: column; gap: 10px;">
-                <p style="color: var(--text-muted);">Portfolio items laden...</p>
+    <!-- 2. ADMIN DASHBOARD (Verborgen tot ingelogd) -->
+    <div id="admin-dashboard" class="container page-content" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <div>
+                <h1>Admin Dashboard</h1>
+                <p style="color: var(--text-muted);">Welkom terug! Beheer hier je inzendingen en portfolio.</p>
             </div>
+            <button onclick="logoutAdmin()" class="btn btn-danger" style="font-size: 0.85rem;">Uitloggen</button>
         </div>
 
         <!-- BINNENGEKOMEN AANVRAGEN -->
         <div class="card">
             <h2>Binnengekomen Aanvragen</h2>
-            <div id="requests-list" style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
-                <p style="color: var(--text-muted);">Aanvragen laden...</p>
+            <div id="requests-list" style="margin-top: 15px;">
+                <p style="color: var(--text-muted);">Aanvragen ophalen...</p>
             </div>
         </div>
 
         <!-- BINNENGEKOMEN SOLLICITATIES -->
         <div class="card">
             <h2>Binnengekomen Sollicitaties</h2>
-            <div id="applications-list" style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
-                <p style="color: var(--text-muted);">Sollicitaties laden...</p>
+            <div id="applications-list" style="margin-top: 15px;">
+                <p style="color: var(--text-muted);">Sollicitaties ophalen...</p>
+            </div>
+        </div>
+
+        <!-- PORTFOLIO BEHEREN -->
+        <div class="card">
+            <h2>Portfolio Beheren</h2>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">
+                Voeg nieuwe items toe of verwijder bestaande projecten uit de database.
+            </p>
+
+            <form id="add-portfolio-form"
+                style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+                <input type="text" id="p-titel" placeholder="Titel van het project" required>
+                <textarea id="p-beschrijving" placeholder="Korte beschrijving van het project" required></textarea>
+                <input type="url" id="p-link" placeholder="Link naar project (optioneel)">
+                <button type="submit" class="btn btn-primary" style="align-self: flex-start;">Item Toevoegen aan
+                    Portfolio</button>
+            </form>
+
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 20px 0;">
+
+            <h3>Huidige Portfolio Items</h3>
+            <div id="portfolio-list" style="margin-top: 15px;">
+                <p style="color: var(--text-muted);">Portfolio ophalen...</p>
             </div>
         </div>
     </div>
@@ -63,33 +99,119 @@
     </footer>
 
     <script>
-        // Vul hier je eigen Supabase-gegevens in
+        // === 1. CONFIGURATIE ===
+        const ADMIN_PASSWORD = "JOUW_WACHTWOORD_HIER"; // 🔑 Pas dit aan naar jouw eigen wachtwoord!
+
         const SUPABASE_URL = 'https://JOUW-PROJECT-ID.supabase.co';
         const SUPABASE_ANON_KEY = 'JOUW-ANON-KEY';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // 1. Portfolio Ophalen & Verwijderen
-        async function loadPortfolio() {
-            const list = document.getElementById('portfolio-list');
-            const { data, error } = await supabase
-                .from('portfolio')
-                .select('*')
-                .order('created_at', { ascending: false });
+        // === 2. WACHTWOORD CONTROLE ===
+        const loginForm = document.getElementById('login-form');
+        const loginScreen = document.getElementById('login-screen');
+        const adminDashboard = document.getElementById('admin-dashboard');
+        const loginError = document.getElementById('login-error');
 
-            if (error) {
-                list.innerHTML = `<p style="color: var(--danger);">Fout bij laden portfolio: ${error.message}</p>`;
-                return;
+        // Check of er al is ingelogd in deze sessie
+        if (sessionStorage.getItem('admin_authenticated') === 'true') {
+            showDashboard();
+        }
+
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const inputPassword = document.getElementById('admin-password').value;
+
+            if (inputPassword === ADMIN_PASSWORD) {
+                sessionStorage.setItem('admin_authenticated', 'true');
+                showDashboard();
+            } else {
+                loginError.style.display = 'block';
             }
+        });
 
-            if (!data || data.length === 0) {
-                list.innerHTML = '<p style="color: var(--text-muted);">Geen portfolio-items gevonden.</p>';
+        function showDashboard() {
+            loginScreen.style.display = 'none';
+            adminDashboard.style.display = 'block';
+            loadAllData();
+        }
+
+        function logoutAdmin() {
+            sessionStorage.removeItem('admin_authenticated');
+            location.reload();
+        }
+
+        // === 3. DATABASE GEGEVENS OPHALEN ===
+        function loadAllData() {
+            loadRequests();
+            loadApplications();
+            loadPortfolio();
+        }
+
+        // Aanvragen
+        async function loadRequests() {
+            const list = document.getElementById('requests-list');
+            const { data, error } = await supabase.from('aanvragen').select('*').order('created_at', { ascending: false });
+
+            if (error || !data || data.length === 0) {
+                list.innerHTML = '<p style="color: var(--text-muted);">Geen aanvragen gevonden.</p>';
                 return;
             }
 
             list.innerHTML = '';
             data.forEach(item => {
                 const div = document.createElement('div');
-                div.style.cssText = 'background: var(--bg-dark); padding: 12px 15px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color);';
+                div.className = 'card';
+                div.style.marginBottom = '10px';
+                div.style.padding = '15px';
+                div.innerHTML = `
+                    <strong>${item.naam || item.studio_naam || 'Anoniem'}</strong> (${item.email || 'Geen email'})<br>
+                    <small style="color: var(--primary);">Soort website: ${item.soort_website || 'Niet opgegeven'}</small>
+                    <p style="margin-top: 8px; color: var(--text-muted);">${item.wensen || item.bericht || item.inhoud || ''}</p>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        // Sollicitaties
+        async function loadApplications() {
+            const list = document.getElementById('applications-list');
+            const { data, error } = await supabase.from('sollicitaties').select('*').order('created_at', { ascending: false });
+
+            if (error || !data || data.length === 0) {
+                list.innerHTML = '<p style="color: var(--text-muted);">Geen sollicitaties gevonden.</p>';
+                return;
+            }
+
+            list.innerHTML = '';
+            data.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.style.marginBottom = '10px';
+                div.style.padding = '15px';
+                div.innerHTML = `
+                    <strong>${item.naam || 'Anoniem'}</strong> (${item.email || 'Geen email'})<br>
+                    <small style="color: var(--primary);">Vaardigheden: ${item.vaardigheden || 'Geen'}</small>
+                    <p style="margin-top: 8px; color: var(--text-muted);">${item.motivatie || item.ervaring || ''}</p>
+                    ${item.link ? `<a href="${item.link}" target="_blank" style="color: var(--primary); font-size: 0.85rem;">Bekijk werk</a>` : ''}
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        // Portfolio
+        async function loadPortfolio() {
+            const list = document.getElementById('portfolio-list');
+            const { data, error } = await supabase.from('portfolio').select('*').order('created_at', { ascending: false });
+
+            if (error || !data || data.length === 0) {
+                list.innerHTML = '<p style="color: var(--text-muted);">Geen portfolio items aanwezig.</p>';
+                return;
+            }
+
+            list.innerHTML = '';
+            data.forEach(item => {
+                const div = document.createElement('div');
+                div.style.cssText = 'background: var(--bg-dark); padding: 12px 15px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color); margin-bottom: 8px;';
                 div.innerHTML = `
                     <div>
                         <strong>${item.titel || 'Geen titel'}</strong>
@@ -101,8 +223,25 @@
             });
         }
 
+        // Item toevoegen
+        document.getElementById('add-portfolio-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const titel = document.getElementById('p-titel').value;
+            const beschrijving = document.getElementById('p-beschrijving').value;
+            const link = document.getElementById('p-link').value;
+
+            const { error } = await supabase.from('portfolio').insert([{ titel, beschrijving, link }]);
+            if (error) {
+                alert('Fout bij toevoegen: ' + error.message);
+            } else {
+                document.getElementById('add-portfolio-form').reset();
+                loadPortfolio();
+            }
+        });
+
+        // Item verwijderen
         async function deletePortfolio(id) {
-            if (confirm('Weet je zeker dat je dit item wilt verwijderen uit het portfolio?')) {
+            if (confirm('Weet je zeker dat je dit item wilt verwijderen?')) {
                 const { error } = await supabase.from('portfolio').delete().eq('id', id);
                 if (error) {
                     alert('Fout bij verwijderen: ' + error.message);
@@ -111,71 +250,6 @@
                 }
             }
         }
-
-        // 2. Aanvragen Laden
-        async function loadRequests() {
-            const list = document.getElementById('requests-list');
-            const { data, error } = await supabase
-                .from('aanvragen')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (error) {
-                list.innerHTML = `<p style="color: var(--danger);">Fout bij laden aanvragen: ${error.message}</p>`;
-                return;
-            }
-
-            if (!data || data.length === 0) {
-                list.innerHTML = '<p style="color: var(--text-muted);">Geen aanvragen gevonden.</p>';
-                return;
-            }
-
-            list.innerHTML = '';
-            data.forEach(item => {
-                const div = document.createElement('div');
-                div.style.cssText = 'background: var(--bg-dark); padding: 12px 15px; border-radius: 6px; border: 1px solid var(--border-color);';
-                div.innerHTML = `
-                    <strong>${item.naam || 'Anoniem'}</strong> <span style="color: var(--text-muted);">(${item.email || ''})</span> - <em>${item.soort_website || ''}</em>
-                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 5px;">${item.wensen || item.bericht || ''}</p>
-                `;
-                list.appendChild(div);
-            });
-        }
-
-        // 3. Sollicitaties Laden
-        async function loadApplications() {
-            const list = document.getElementById('applications-list');
-            const { data, error } = await supabase
-                .from('sollicitaties')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (error) {
-                list.innerHTML = `<p style="color: var(--danger);">Fout bij laden sollicitaties: ${error.message}</p>`;
-                return;
-            }
-
-            if (!data || data.length === 0) {
-                list.innerHTML = '<p style="color: var(--text-muted);">Geen sollicitaties gevonden.</p>';
-                return;
-            }
-
-            list.innerHTML = '';
-            data.forEach(item => {
-                const div = document.createElement('div');
-                div.style.cssText = 'background: var(--bg-dark); padding: 12px 15px; border-radius: 6px; border: 1px solid var(--border-color);';
-                div.innerHTML = `
-                    <strong>${item.naam || 'Anoniem'}</strong> <span style="color: var(--text-muted);">(${item.email || ''})</span>
-                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 5px;">${item.motivatie || item.ervaring || ''}</p>
-                `;
-                list.appendChild(div);
-            });
-        }
-
-        // Aanroepen bij openen van pagina
-        loadPortfolio();
-        loadRequests();
-        loadApplications();
     </script>
 </body>
 
